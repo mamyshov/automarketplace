@@ -32,9 +32,21 @@ export const listingFormSchema = z.object({
   status: z.enum(["available", "in_transit", "in_china", "on_order", "sold"]),
   description: z.string().trim().max(5000).optional().nullable(),
   location: z.string().trim().max(200).optional().nullable(),
+  dealer_id: z.string().uuid().optional().nullable(),
 });
 
 export type ListingFormInput = z.infer<typeof listingFormSchema>;
+
+export const dealerFormSchema = z.object({
+  name: z.string().trim().min(2, "Укажите название компании").max(150),
+  description: z.string().trim().max(3000).optional().nullable(),
+  region: z.string().trim().max(100).optional().nullable(),
+  phone: z.string().trim().max(50).optional().nullable(),
+  whatsapp: z.string().trim().max(50).optional().nullable(),
+  telegram: z.string().trim().max(50).optional().nullable(),
+});
+
+export type DealerFormInput = z.infer<typeof dealerFormSchema>;
 
 export const calculatorRateFormSchema = z.object({
   body_type: z.string().trim().min(1),

@@ -12,6 +12,20 @@ export interface ListingActionResult {
   error?: string;
 }
 
+// A listing's dealer_id is a claim of "this is company X's listing" — never
+// trust it from the client as-is. Confirms the dealer row (if any) actually
+// belongs to the calling user before it's allowed onto the listing.
+async function assertOwnDealerOrNull(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  userId: string,
+  dealerId: string | null | undefined
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!dealerId) return { ok: true };
+  const { data } = await supabase.from("dealers").select("id").eq("id", dealerId).eq("user_id", userId).maybeSingle();
+  if (!data) return { ok: false, error: "Эта компания вам не принадлежит" };
+  return { ok: true };
+}
+
 export async function createListing(input: ListingFormInput): Promise<ListingActionResult> {
   const parsed = listingFormSchema.safeParse(input);
   if (!parsed.success) {
@@ -23,6 +37,9 @@ export async function createListing(input: ListingFormInput): Promise<ListingAct
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Требуется вход" };
+
+  const dealerCheck = await assertOwnDealerOrNull(supabase, user.id, parsed.data.dealer_id);
+  if (!dealerCheck.ok) return { ok: false, error: dealerCheck.error };
 
   // Free plan limit (spec §5.7) — dealers/PRO users are exempt via an active
   // subscription; MVP keeps this check simple (count of the user's own
@@ -70,6 +87,14 @@ export async function updateListing(id: string, input: ListingFormInput): Promis
   }
 
   const supabase = createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Требуется вход" };
+
+  const dealerCheck = await assertOwnDealerOrNull(supabase, user.id, parsed.data.dealer_id);
+  if (!dealerCheck.ok) return { ok: false, error: dealerCheck.error };
+
   const { error } = await supabase.from("listings").update(parsed.data).eq("id", id);
 
   if (error) {

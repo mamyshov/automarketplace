@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { getListingById, incrementListingViews } from "@/lib/data/listings";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -51,10 +52,14 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             <CheckBadgeIcon width={14} height={14} /> {t.listing.verified}
           </span>
         )}
-        {listing.dealers?.verified && (
-          <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700">
-            Проверенный поставщик · {listing.dealers.name}
-          </span>
+        {listing.dealers && (
+          <Link
+            href={`/companies/${listing.dealers.slug}`}
+            className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
+          >
+            {listing.dealers.verified && "Проверенный поставщик · "}
+            {listing.dealers.name}
+          </Link>
         )}
       </div>
 

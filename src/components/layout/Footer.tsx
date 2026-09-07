@@ -30,6 +30,7 @@ export function Footer() {
           <div>
             <div className="mb-2 font-semibold text-neutral-900">Площадка</div>
             <ul className="space-y-1">
+              <li><Link href="/companies" className="hover:text-brand-600">Компании</Link></li>
               <li><Link href="/about" className="hover:text-brand-600">О площадке / Контакты</Link></li>
               <li><Link href="/dashboard/listings/new" className="hover:text-brand-600">Разместить объявление</Link></li>
             </ul>

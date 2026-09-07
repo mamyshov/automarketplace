@@ -14,9 +14,10 @@ export interface ListingFormProps {
   mode: "create" | "edit";
   listingId?: string;
   initial?: Partial<ListingFormInput>;
+  ownDealer?: { id: string; name: string } | null;
 }
 
-export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
+export function ListingForm({ mode, listingId, initial, ownDealer }: ListingFormProps) {
   const router = useRouter();
   const [values, setValues] = useState<ListingFormInput>({
     market: initial?.market ?? "bishkek",
@@ -35,6 +36,7 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
     status: initial?.status ?? "in_china",
     description: initial?.description ?? "",
     location: initial?.location ?? "Бишкек",
+    dealer_id: initial?.dealer_id ?? null,
   });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -146,6 +148,17 @@ export function ListingForm({ mode, listingId, initial }: ListingFormProps) {
       <Field label="Описание">
         <textarea rows={5} value={values.description ?? ""} onChange={(e) => set("description", e.target.value)} className={inputCls} />
       </Field>
+
+      {ownDealer && (
+        <label className="flex min-h-touch items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm">
+          <input
+            type="checkbox"
+            checked={values.dealer_id === ownDealer.id}
+            onChange={(e) => set("dealer_id", e.target.checked ? ownDealer.id : null)}
+          />
+          Опубликовать от имени компании «{ownDealer.name}»
+        </label>
+      )}
 
       {error && <p className="text-sm text-danger">{error}</p>}
 

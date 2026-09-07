@@ -6,6 +6,7 @@ import { signOut } from "@/lib/actions/auth";
 const NAV = [
   { href: "/dashboard/listings", label: "Мои объявления" },
   { href: "/dashboard/leads", label: "Заявки" },
+  { href: "/dashboard/company", label: "Профиль компании" },
   { href: "/dashboard/billing", label: "Тариф и оплата" },
   { href: "/dashboard/settings", label: "Настройки" },
 ];

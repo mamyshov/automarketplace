@@ -225,11 +225,28 @@ alter table public.listings enable row level security;
 create policy "listings public read approved" on public.listings for select
   using (moderation_status = 'approved' or user_id = auth.uid() or public.is_admin());
 
+-- A listing's dealer_id is a claim of "this is company X's listing" — must
+-- be null or a dealer the caller actually owns, otherwise anyone could
+-- attribute their listing to someone else's company via a direct insert/
+-- update against the anon key (bypassing the app's own server-action check).
+create or replace function public.owns_dealer_or_null(p_dealer_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select p_dealer_id is null or exists (
+    select 1 from public.dealers d where d.id = p_dealer_id and d.user_id = auth.uid()
+  );
+$$;
+
 create policy "listings insert own" on public.listings for insert
-  with check (user_id = auth.uid());
+  with check (user_id = auth.uid() and public.owns_dealer_or_null(dealer_id));
 
 create policy "listings update own or admin" on public.listings for update
-  using (user_id = auth.uid() or public.is_admin());
+  using (user_id = auth.uid() or public.is_admin())
+  with check (public.is_admin() or public.owns_dealer_or_null(dealer_id));
 
 create policy "listings delete own or admin" on public.listings for delete
   using (user_id = auth.uid() or public.is_admin());

@@ -34,6 +34,24 @@ export async function getFeaturedListings(market: "bishkek" | "china", limit = 4
   return (data as unknown as CardRow[]).map(toCard);
 }
 
+export async function getDealerListings(dealerId: string, limit = 60): Promise<ListingCardData[]> {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("listings")
+    .select(CARD_SELECT)
+    .eq("dealer_id", dealerId)
+    .eq("moderation_status", "approved")
+    .neq("status", "sold")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("getDealerListings failed", error);
+    return [];
+  }
+  return (data as unknown as CardRow[]).map(toCard);
+}
+
 export interface CatalogPage {
   listings: ListingCardData[];
   count: number;

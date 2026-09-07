@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/china/calculator", label: "Калькулятор Китай" },
   { href: "/budget", label: "Подбор по бюджету" },
   { href: "/china", label: t.nav.china },
+  { href: "/companies", label: t.nav.companies },
   { href: "/about", label: t.nav.about },
 ];
 
