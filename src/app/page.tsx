@@ -16,13 +16,13 @@ export default async function HomePage() {
     <div>
       {/* Hero: two visually equal but distinct CTAs (spec §5.1) */}
       <section className="bg-gradient-to-b from-brand-50 to-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16">
-          <h1 className="max-w-2xl text-3xl font-bold leading-tight text-neutral-900 sm:text-4xl">
+        <div className="mx-auto max-w-7xl px-4 py-10 text-center sm:px-6 sm:py-16">
+          <h1 className="mx-auto max-w-2xl text-3xl font-bold leading-tight text-neutral-900 sm:text-4xl">
             {t.home.heroTitle}
           </h1>
-          <p className="mt-3 max-w-xl text-neutral-600">{t.home.heroSubtitle}</p>
+          <p className="mx-auto mt-3 max-w-xl text-neutral-600">{t.home.heroSubtitle}</p>
 
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:max-w-xl">
+          <div className="mx-auto mt-6 grid grid-cols-1 gap-3 sm:max-w-xl sm:grid-cols-2">
             <Link
               href="/cars"
               className="flex min-h-touch items-center justify-between rounded-xl bg-neutral-900 px-5 py-4 font-semibold text-white transition hover:bg-neutral-800"
@@ -39,7 +39,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-8 max-w-2xl">
+          <div className="mx-auto mt-8 max-w-2xl text-left">
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-neutral-500">
               {t.home.calculatorWidgetTitle}
             </h2>
