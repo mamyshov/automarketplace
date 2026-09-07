@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "china": "China",
+    "favorites": "Favorites",
+    "dashboard": "Dashboard",
+    "companies": "Dealers",
+    "about": "About",
+    "login": "Log in",
+    "logout": "Log out",
+    "admin": "Admin"
+  },
+  "home": {
+    "heroTitle": "Find a car in Bishkek or order one from China",
+    "heroSubtitle": "Transparent full delivery cost calculator and budget-based matching",
+    "ctaBrowse": "Browse cars",
+    "ctaChina": "🇨🇳 Order a car from China",
+    "calculatorWidgetTitle": "Estimate the cost",
+    "budgetWidgetTitle": "Match by budget",
+    "budgetPlaceholder": "Your budget, $",
+    "budgetSubmit": "Find matches",
+    "bishkekMarket": "In stock in Bishkek",
+    "chinaMarket": "From China, to order",
+    "viewAll": "View all"
+  },
+  "listing": {
+    "priceOrigin": "Price in China",
+    "priceFinal": "Total in Bishkek",
+    "estimateNote": "Estimated price — a manager will confirm the exact quote",
+    "verified": "Verified by the platform",
+    "getExactQuote": "Get an exact quote",
+    "contactSeller": "Contact the seller",
+    "views": "views"
+  },
+  "calculator": {
+    "title": "Calculate a car from China",
+    "brand": "Make",
+    "model": "Model",
+    "year": "Year",
+    "bodyType": "Body type",
+    "engineVolume": "Engine volume, L",
+    "priceChina": "Price in China, $",
+    "calculate": "Calculate",
+    "priceChinaLabel": "Price in China",
+    "logistics": "Delivery (sea/rail)",
+    "broker": "Clearance & broker",
+    "customs": "Customs duties",
+    "total": "Total in Bishkek (estimate)",
+    "approximateNote": "No exact bracket matched your parameters — showing the closest estimate"
+  },
+  "lead": {
+    "name": "Name",
+    "contact": "Contact (WhatsApp/Telegram/phone)",
+    "submit": "Get an exact quote",
+    "success": "Request sent! A manager will contact you shortly.",
+    "error": "Could not submit the request, please try again"
+  },
+  "status": {
+    "available": "In stock",
+    "in_transit": "In transit",
+    "in_china": "In China",
+    "on_order": "To order",
+    "sold": "Sold"
+  }
+}

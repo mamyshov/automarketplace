@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  @apply bg-neutral-50 text-neutral-900 font-sans antialiased;
+}
+
+/* Reserve space for the fixed bottom nav on mobile so content isn't hidden
+   behind it; matches design-tokens.json bottomNav.height. */
+.page-with-bottom-nav {
+  padding-bottom: calc(theme("height.bottom-nav") + env(safe-area-inset-bottom, 0px) + 12px);
+}
+
+.bottom-sheet-enter {
+  animation: slide-up 0.2s ease-out;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
