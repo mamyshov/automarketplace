@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FilterPanel } from "@/components/ui/FilterPanel";
+import { FilterTrigger, FilterSidebar } from "@/components/ui/FilterPanel";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { getCatalogListings } from "@/lib/data/listings";
 import Link from "next/link";
@@ -58,7 +58,7 @@ export default async function CarsPage({
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-neutral-900">Автомобили</h1>
-        <FilterPanel />
+        <FilterTrigger />
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -75,7 +75,7 @@ export default async function CarsPage({
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[260px_1fr]">
         <aside className="hidden md:block">
-          <FilterPanel />
+          <FilterSidebar />
         </aside>
 
         <div>

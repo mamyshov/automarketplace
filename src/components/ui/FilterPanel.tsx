@@ -33,20 +33,16 @@ function readFilters(params: URLSearchParams): CatalogFilters {
   };
 }
 
-/**
- * Filters open as a full-screen bottom sheet on mobile (spec §8: "фильтры
- * открываются полноэкранным листом снизу, а не боковой панелью"), and as an
- * always-visible sidebar from the md breakpoint up. Applies by pushing a new
- * URL — the catalog page is a Server Component that reads searchParams, so
- * results stay SSR'd/indexable.
- */
-export function FilterPanel() {
+/** Shared state + apply/reset logic behind both filter UIs below. Each is
+ * rendered exactly once on the page (mobile trigger vs. desktop sidebar),
+ * so each gets its own independent draft state — no cross-instance sync
+ * needed. */
+function useCatalogFiltersDraft() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<CatalogFilters>(() => readFilters(searchParams));
 
-  function set<K extends keyof CatalogFilters>(key: K, value: string) {
+  function set<K extends keyof CatalogFilters>(key: K, value: CatalogFilters[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
   }
 
@@ -63,11 +59,10 @@ export function FilterPanel() {
     if (draft.priceFrom) params.set("price_from", draft.priceFrom);
     if (draft.priceTo) params.set("price_to", draft.priceTo);
     router.push(`/cars?${params.toString()}`);
-    setOpen(false);
   }
 
   function reset() {
-    const empty: CatalogFilters = {
+    setDraft({
       market: "",
       brand: "",
       bodyType: "",
@@ -78,13 +73,21 @@ export function FilterPanel() {
       yearTo: "",
       priceFrom: "",
       priceTo: "",
-    };
-    setDraft(empty);
+    });
     router.push("/cars");
-    setOpen(false);
   }
 
-  const form = (
+  return { draft, set, apply, reset };
+}
+
+function FilterFields({
+  draft,
+  set,
+}: {
+  draft: CatalogFilters;
+  set: <K extends keyof CatalogFilters>(key: K, value: CatalogFilters[K]) => void;
+}) {
+  return (
     <div className="flex flex-col gap-4">
       <Field label="Рынок">
         <select value={draft.market} onChange={(e) => set("market", e.target.value)} className={selectCls}>
@@ -176,40 +179,53 @@ export function FilterPanel() {
           ))}
         </select>
       </Field>
-
-      <div className="flex gap-2 pt-2">
-        <button
-          type="button"
-          onClick={reset}
-          className="min-h-touch flex-1 rounded-lg border border-neutral-300 font-medium text-neutral-700"
-        >
-          Сбросить
-        </button>
-        <button
-          type="button"
-          onClick={apply}
-          className="min-h-touch flex-1 rounded-lg bg-brand-600 font-semibold text-white"
-        >
-          Показать
-        </button>
-      </div>
     </div>
   );
+}
+
+function FilterActions({ onApply, onReset }: { onApply: () => void; onReset: () => void }) {
+  return (
+    <div className="flex gap-2 pt-2">
+      <button
+        type="button"
+        onClick={onReset}
+        className="min-h-touch flex-1 rounded-lg border border-neutral-300 font-medium text-neutral-700"
+      >
+        Сбросить
+      </button>
+      <button
+        type="button"
+        onClick={onApply}
+        className="min-h-touch flex-1 rounded-lg bg-brand-600 font-semibold text-white"
+      >
+        Показать
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Mobile-only trigger button + full-screen bottom sheet (spec §8: "фильтры
+ * открываются полноэкранным листом снизу"). Render this once, in the page
+ * header — it hides itself at md+ where FilterSidebar takes over.
+ */
+export function FilterTrigger() {
+  const { draft, set, apply, reset } = useCatalogFiltersDraft();
+  const [open, setOpen] = useState(false);
 
   return (
-    <>
-      {/* Mobile trigger */}
+    <div className="md:hidden">
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex min-h-touch items-center gap-2 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 md:hidden"
+        className="flex min-h-touch items-center gap-2 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700"
       >
         <FilterIcon width={18} height={18} />
         Фильтры
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-neutral-900/40" onClick={() => setOpen(false)} />
           <div className="bottom-sheet-enter absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-2xl bg-white p-5">
             <div className="mb-4 flex items-center justify-between">
@@ -218,17 +234,38 @@ export function FilterPanel() {
                 <CloseIcon />
               </button>
             </div>
-            {form}
+            <FilterFields draft={draft} set={set} />
+            <FilterActions
+              onApply={() => {
+                apply();
+                setOpen(false);
+              }}
+              onReset={() => {
+                reset();
+                setOpen(false);
+              }}
+            />
           </div>
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* Desktop sidebar */}
-      <div className="hidden rounded-xl border border-neutral-200 bg-white p-5 md:block">
-        <h2 className="mb-4 text-lg font-semibold">Фильтры</h2>
-        {form}
-      </div>
-    </>
+/**
+ * Always-visible desktop sidebar. Render this once, inside a `hidden
+ * md:block` wrapper in the page layout — it doesn't hide itself, the parent
+ * controls that, so it never doubles up with FilterTrigger's own markup.
+ */
+export function FilterSidebar() {
+  const { draft, set, apply, reset } = useCatalogFiltersDraft();
+
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-5">
+      <h2 className="mb-4 text-lg font-semibold">Фильтры</h2>
+      <FilterFields draft={draft} set={set} />
+      <FilterActions onApply={apply} onReset={reset} />
+    </div>
   );
 }
 
