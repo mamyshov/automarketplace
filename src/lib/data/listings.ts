@@ -71,6 +71,7 @@ export async function getCatalogListings(
 
   if (filters.market) query = query.eq("market", filters.market);
   if (filters.brand) query = query.ilike("brand", `%${filters.brand}%`);
+  if (filters.model) query = query.ilike("model", `%${filters.model}%`);
   if (filters.bodyType) query = query.eq("body_type", filters.bodyType);
   if (filters.transmission) query = query.eq("transmission", filters.transmission);
   if (filters.fuel) query = query.eq("fuel", filters.fuel);

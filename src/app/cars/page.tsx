@@ -31,6 +31,7 @@ export default async function CarsPage({
   const filters = {
     market: searchParams.market ?? "",
     brand: searchParams.brand ?? "",
+    model: searchParams.model ?? "",
     bodyType: searchParams.body ?? "",
     transmission: searchParams.transmission ?? "",
     fuel: searchParams.fuel ?? "",

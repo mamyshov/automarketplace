@@ -8,6 +8,7 @@ import { FilterIcon, CloseIcon } from "@/components/icons";
 export interface CatalogFilters {
   market: string;
   brand: string;
+  model: string;
   bodyType: string;
   transmission: string;
   fuel: string;
@@ -22,6 +23,7 @@ function readFilters(params: URLSearchParams): CatalogFilters {
   return {
     market: params.get("market") ?? "",
     brand: params.get("brand") ?? "",
+    model: params.get("model") ?? "",
     bodyType: params.get("body") ?? "",
     transmission: params.get("transmission") ?? "",
     fuel: params.get("fuel") ?? "",
@@ -50,6 +52,7 @@ function useCatalogFiltersDraft() {
     const params = new URLSearchParams();
     if (draft.market) params.set("market", draft.market);
     if (draft.brand) params.set("brand", draft.brand);
+    if (draft.model) params.set("model", draft.model);
     if (draft.bodyType) params.set("body", draft.bodyType);
     if (draft.transmission) params.set("transmission", draft.transmission);
     if (draft.fuel) params.set("fuel", draft.fuel);
@@ -65,6 +68,7 @@ function useCatalogFiltersDraft() {
     setDraft({
       market: "",
       brand: "",
+      model: "",
       bodyType: "",
       transmission: "",
       fuel: "",
@@ -102,6 +106,15 @@ function FilterFields({
           value={draft.brand}
           onChange={(e) => set("brand", e.target.value)}
           placeholder="Toyota"
+          className={inputCls}
+        />
+      </Field>
+
+      <Field label="Модель">
+        <input
+          value={draft.model}
+          onChange={(e) => set("model", e.target.value)}
+          placeholder="Camry"
           className={inputCls}
         />
       </Field>
