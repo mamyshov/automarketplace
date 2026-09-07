@@ -5,13 +5,22 @@ import { calculateEstimate } from "@/lib/actions/calculator";
 import { PriceBreakdown } from "@/components/ui/PriceBreakdown";
 import { LeadForm } from "@/components/ui/LeadForm";
 import { BODY_TYPES } from "@/lib/constants";
-import { t } from "@/lib/i18n";
+import { getDictionary, type Locale } from "@/lib/i18n";
 import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 import type { CalculatorBreakdown } from "@/types/database";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
-export function CalculatorForm({ initialBrand = "", initialModel = "" }: { initialBrand?: string; initialModel?: string }) {
+export function CalculatorForm({
+  initialBrand = "",
+  initialModel = "",
+  locale = "ru",
+}: {
+  initialBrand?: string;
+  initialModel?: string;
+  locale?: Locale;
+}) {
+  const dict = getDictionary(locale);
   const [brand, setBrand] = useState(initialBrand);
   const [model, setModel] = useState(initialModel);
   const [year, setYear] = useState(String(CURRENT_YEAR - 1));
@@ -47,7 +56,7 @@ export function CalculatorForm({ initialBrand = "", initialModel = "" }: { initi
       trackEvent(ANALYTICS_EVENTS.CALCULATOR_SUBMIT, { brand, model, year, bodyType, total: result.breakdown.total });
     } else {
       setState("error");
-      setError(result.error ?? "Ошибка расчёта");
+      setError(result.error ?? dict.calculator.genericError);
     }
   }
 
@@ -55,16 +64,16 @@ export function CalculatorForm({ initialBrand = "", initialModel = "" }: { initi
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 rounded-xl border border-neutral-200 bg-white p-5">
         <div className="grid grid-cols-2 gap-3">
-          <Field label={t.calculator.brand}>
+          <Field label={dict.calculator.brand}>
             <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="Toyota" className={inputCls} />
           </Field>
-          <Field label={t.calculator.model}>
+          <Field label={dict.calculator.model}>
             <input value={model} onChange={(e) => setModel(e.target.value)} placeholder="Camry" className={inputCls} />
           </Field>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label={t.calculator.year}>
+          <Field label={dict.calculator.year}>
             <input
               inputMode="numeric"
               value={year}
@@ -72,7 +81,7 @@ export function CalculatorForm({ initialBrand = "", initialModel = "" }: { initi
               className={inputCls}
             />
           </Field>
-          <Field label={t.calculator.engineVolume}>
+          <Field label={dict.calculator.engineVolume}>
             <input
               inputMode="decimal"
               value={engineVolume}
@@ -82,15 +91,17 @@ export function CalculatorForm({ initialBrand = "", initialModel = "" }: { initi
           </Field>
         </div>
 
-        <Field label={t.calculator.bodyType}>
+        <Field label={dict.calculator.bodyType}>
           <select value={bodyType} onChange={(e) => setBodyType(e.target.value)} className={inputCls}>
             {BODY_TYPES.map((b) => (
-              <option key={b.value} value={b.value}>{b.label}</option>
+              <option key={b.value} value={b.value}>
+                {dict.options.bodyTypes[b.value as keyof typeof dict.options.bodyTypes]}
+              </option>
             ))}
           </select>
         </Field>
 
-        <Field label={t.calculator.priceChina}>
+        <Field label={dict.calculator.priceChina}>
           <input
             inputMode="numeric"
             required
@@ -108,7 +119,7 @@ export function CalculatorForm({ initialBrand = "", initialModel = "" }: { initi
           disabled={state === "loading"}
           className="min-h-touch rounded-lg bg-brand-600 px-4 py-2.5 font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
         >
-          {state === "loading" ? "Считаем…" : t.calculator.calculate}
+          {state === "loading" ? dict.calculator.calculating : dict.calculator.calculate}
         </button>
       </form>
 
@@ -116,24 +127,23 @@ export function CalculatorForm({ initialBrand = "", initialModel = "" }: { initi
         {breakdown ? (
           <>
             {approximate && (
-              <p className="mb-3 rounded-lg bg-warning/10 p-2 text-xs text-warning">{t.calculator.approximateNote}</p>
+              <p className="mb-3 rounded-lg bg-warning/10 p-2 text-xs text-warning">{dict.calculator.approximateNote}</p>
             )}
-            <PriceBreakdown breakdown={breakdown} />
+            <PriceBreakdown breakdown={breakdown} locale={locale} />
             <div className="mt-6 border-t border-neutral-100 pt-4">
-              <h3 className="mb-2 text-sm font-semibold text-neutral-700">{t.listing.getExactQuote}</h3>
+              <h3 className="mb-2 text-sm font-semibold text-neutral-700">{dict.listing.getExactQuote}</h3>
               <LeadForm
                 source="calculator"
                 brand={brand}
                 model={model}
                 year={Number(year) || undefined}
                 calculatorBreakdown={breakdown}
+                locale={locale}
               />
             </div>
           </>
         ) : (
-          <p className="text-sm text-neutral-500">
-            Заполните параметры автомобиля слева — расчёт появится здесь.
-          </p>
+          <p className="text-sm text-neutral-500">{dict.calculator.placeholder}</p>
         )}
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { submitLead } from "@/lib/actions/leads";
 import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
-import { t } from "@/lib/i18n";
+import { getDictionary, type Locale } from "@/lib/i18n";
 import type { LeadSource, CalculatorBreakdown, ContactChannel } from "@/types/database";
 
 interface LeadFormProps {
@@ -16,6 +16,7 @@ interface LeadFormProps {
   calculatorBreakdown?: CalculatorBreakdown | null;
   ctaLabel?: string;
   className?: string;
+  locale?: Locale;
 }
 
 export function LeadForm({
@@ -28,7 +29,9 @@ export function LeadForm({
   calculatorBreakdown,
   ctaLabel,
   className = "",
+  locale = "ru",
 }: LeadFormProps) {
+  const dict = getDictionary(locale);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [channel, setChannel] = useState<ContactChannel>("whatsapp");
@@ -58,14 +61,14 @@ export function LeadForm({
       trackEvent(ANALYTICS_EVENTS.LEAD_SUBMIT, { source, listingId, brand, model, budget });
     } else {
       setState("error");
-      setErrorMessage(result.error ?? t.lead.error);
+      setErrorMessage(result.error ?? dict.lead.error);
     }
   }
 
   if (state === "success") {
     return (
       <div className={`rounded-lg border border-success/30 bg-success/5 p-4 text-sm text-success ${className}`}>
-        {t.lead.success}
+        {dict.lead.success}
       </div>
     );
   }
@@ -74,7 +77,7 @@ export function LeadForm({
     <form onSubmit={handleSubmit} className={`flex flex-col gap-3 ${className}`}>
       <div>
         <label htmlFor="lead-name" className="mb-1 block text-sm font-medium text-neutral-700">
-          {t.lead.name}
+          {dict.lead.name}
         </label>
         <input
           id="lead-name"
@@ -82,14 +85,13 @@ export function LeadForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="min-h-touch w-full rounded-lg border border-neutral-300 px-3 py-2 text-base focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-          placeholder="Иван Иванов"
         />
       </div>
 
       <div className="flex gap-2">
         <div className="flex-1">
           <label htmlFor="lead-contact" className="mb-1 block text-sm font-medium text-neutral-700">
-            {t.lead.contact}
+            {dict.lead.contact}
           </label>
           <input
             id="lead-contact"
@@ -102,7 +104,7 @@ export function LeadForm({
         </div>
         <div>
           <label htmlFor="lead-channel" className="mb-1 block text-sm font-medium text-neutral-700">
-            Способ
+            {dict.lead.channel}
           </label>
           <select
             id="lead-channel"
@@ -112,7 +114,7 @@ export function LeadForm({
           >
             <option value="whatsapp">WhatsApp</option>
             <option value="telegram">Telegram</option>
-            <option value="phone">Телефон</option>
+            <option value="phone">{dict.lead.phone}</option>
           </select>
         </div>
       </div>
@@ -124,7 +126,7 @@ export function LeadForm({
         disabled={state === "submitting"}
         className="min-h-touch rounded-lg bg-accent-500 px-4 py-2.5 font-semibold text-white transition hover:bg-accent-600 disabled:opacity-60"
       >
-        {state === "submitting" ? "Отправляем…" : ctaLabel ?? t.lead.submit}
+        {state === "submitting" ? dict.lead.sending : ctaLabel ?? dict.lead.submit}
       </button>
     </form>
   );

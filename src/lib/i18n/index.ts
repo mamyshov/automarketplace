@@ -20,9 +20,11 @@ export function getDictionary(locale: string): Dictionary {
 export const t = getDictionary(DEFAULT_LOCALE);
 
 /**
- * Only `ru` is wired into routing for the MVP (spec §7: "на старте активен
- * только один язык"). The dictionary/translation mechanism itself is fully
- * general — adding `/en` (and later `/kz`, `/uz`) is then just adding a
- * locale segment to the router, not rewriting components, since UI strings
- * already live in dictionaries/*.json rather than hardcoded in JSX.
+ * `ru` (unprefixed, e.g. /cars) is the default per spec §7; `/en/...` mirrors
+ * the customer-facing journey (home, catalog, listing detail, china hub +
+ * calculator + static pages, budget, companies) with getDictionary("en").
+ * Seller/admin/auth stay ru-only — those are operated by KG-based staff, not
+ * the audience this covers. Adding a third locale (`/kz`, `/uz`) later is a
+ * new dictionary file + new mirror route folder, no component rewrites,
+ * since UI strings already live in dictionaries/*.json.
  */

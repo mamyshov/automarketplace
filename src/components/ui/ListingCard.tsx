@@ -4,6 +4,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { formatMileage } from "@/lib/format";
 import { CheckBadgeIcon } from "@/components/icons";
+import { getDictionary, type Locale } from "@/lib/i18n";
 import type { ListingRow } from "@/types/database";
 
 export interface ListingCardData
@@ -24,10 +25,13 @@ export interface ListingCardData
   photo_url: string | null;
 }
 
-export function ListingCard({ listing }: { listing: ListingCardData }) {
+export function ListingCard({ listing, locale = "ru" }: { listing: ListingCardData; locale?: Locale }) {
+  const dict = getDictionary(locale);
+  const href = locale === "ru" ? `/listings/${listing.id}` : `/${locale}/listings/${listing.id}`;
+
   return (
     <Link
-      href={`/listings/${listing.id}`}
+      href={href}
       className="group flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition hover:shadow-md"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-100">
@@ -44,7 +48,7 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           <div className="flex h-full w-full items-center justify-center text-4xl text-neutral-300">🚗</div>
         )}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
-          <StatusBadge status={listing.status} className="bg-white/95" />
+          <StatusBadge status={listing.status} locale={locale} className="bg-white/95" />
         </div>
         <div className="absolute right-2 top-2 flex flex-col items-end gap-1.5">
           <FavoriteButton listingId={listing.id} />
@@ -68,7 +72,10 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
         <div className="mt-auto pt-2">
           {listing.market === "china" && listing.price_origin ? (
             <div className="text-xs text-neutral-500">
-              В Китае от ${new Intl.NumberFormat("en-US").format(listing.price_origin)}
+              {dict.listing.fromInChina.replace(
+                "__AMOUNT__",
+                new Intl.NumberFormat("en-US").format(listing.price_origin)
+              )}
             </div>
           ) : null}
           <div className="text-lg font-bold text-neutral-900">

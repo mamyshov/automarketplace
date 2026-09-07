@@ -2,11 +2,12 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SITE_NAME } from "@/lib/constants";
 import { t } from "@/lib/i18n";
+import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 
 const NAV_LINKS = [
   { href: "/cars", label: t.nav.catalog },
-  { href: "/china/calculator", label: "Калькулятор Китай" },
-  { href: "/budget", label: "Подбор по бюджету" },
+  { href: "/china/calculator", label: t.nav.calculator },
+  { href: "/budget", label: t.nav.budget },
   { href: "/china", label: t.nav.china },
   { href: "/companies", label: t.nav.companies },
   { href: "/about", label: t.nav.about },
@@ -40,6 +41,7 @@ export async function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <LocaleSwitcher />
           {user ? (
             <Link
               href="/dashboard"

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { t } from "@/lib/i18n";
+import { getDictionary, type Locale } from "@/lib/i18n";
 import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 
 /**
@@ -10,7 +10,8 @@ import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
  * multi-step calculator at /china/calculator, which does the real
  * brand/model/year/engine-aware computation against calculator_rates.
  */
-export function CalculatorWidget() {
+export function CalculatorWidget({ locale = "ru" }: { locale?: Locale }) {
+  const dict = getDictionary(locale);
   const router = useRouter();
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -21,7 +22,8 @@ export function CalculatorWidget() {
     const params = new URLSearchParams();
     if (brand) params.set("brand", brand);
     if (model) params.set("model", model);
-    router.push(`/china/calculator?${params.toString()}`);
+    const basePath = locale === "ru" ? "/china/calculator" : `/${locale}/china/calculator`;
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   return (
@@ -30,7 +32,7 @@ export function CalculatorWidget() {
       className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end"
     >
       <div className="flex-1">
-        <label className="mb-1 block text-sm font-medium text-neutral-700">{t.calculator.brand}</label>
+        <label className="mb-1 block text-sm font-medium text-neutral-700">{dict.calculator.brand}</label>
         <input
           value={brand}
           onChange={(e) => setBrand(e.target.value)}
@@ -39,7 +41,7 @@ export function CalculatorWidget() {
         />
       </div>
       <div className="flex-1">
-        <label className="mb-1 block text-sm font-medium text-neutral-700">{t.calculator.model}</label>
+        <label className="mb-1 block text-sm font-medium text-neutral-700">{dict.calculator.model}</label>
         <input
           value={model}
           onChange={(e) => setModel(e.target.value)}
@@ -51,7 +53,7 @@ export function CalculatorWidget() {
         type="submit"
         className="min-h-touch rounded-lg bg-brand-600 px-5 py-2.5 font-semibold text-white transition hover:bg-brand-700"
       >
-        {t.calculator.calculate}
+        {dict.calculator.calculate}
       </button>
     </form>
   );

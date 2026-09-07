@@ -106,5 +106,25 @@ insert into public.static_pages (slug, locale, title, content_md) values
 (
   'about', 'ru', 'О площадке',
   E'## О CarBridge\n\nCarBridge — маркетплейс автомобилей, объединяющий два рынка: автомобили в наличии в Бишкеке и автомобили из Китая под заказ с доставкой. Мы не просто доска объявлений — мы считаем для вас полную стоимость доставки и подбираем автомобиль под бюджет.\n\nЛюбой дилер может завести профиль компании и размещать объявления на площадке.'
+),
+(
+  'how-to-buy', 'en', 'How to buy a car in China',
+  E'## How to buy a car in China through CarBridge\n\n1. **Pick a car.** Use the calculator or the "Cars in China" catalog, or leave a budget-matching request.\n2. **Get an estimate.** The calculator shows an approximate turnkey price: price in China + delivery + clearance + customs.\n3. **Manager confirmation.** We confirm the exact price, availability and timeline.\n4. **Deposit.** Once terms are agreed, a deposit reserves the car.\n5. **Inspection and paperwork.** The car is inspected and export documents are prepared.\n6. **Delivery.** The car is shipped to Kyrgyzstan (sea/rail + road transport).\n7. **Customs clearance and handover.** After customs clearance, the car is handed to the buyer in Bishkek.'
+),
+(
+  'delivery', 'en', 'Delivery from China',
+  E'## Timelines and routes\n\nDelivery from China to Kyrgyzstan typically takes **20–45 days**, depending on the region and border crossing load.\n\n**Main routes:**\n- Road transport via the Irkeshtam/Torugart border crossing;\n- Rail container to Kashgar, then road delivery;\n- Sea to a port (for some regions of China) + road delivery.\n\nExact timelines and cost depend on the shipping region and are confirmed by a manager during the estimate.'
+),
+(
+  'customs', 'en', 'Customs clearance',
+  E'## Customs duties and documents\n\nCustoms duties depend on engine volume, the car''s age and body type. The exact rate is calculated by the calculator based on current rates.\n\n**Required documents:**\n- Sale and purchase agreement;\n- China export documents;\n- Registration documents for Kyrgyzstan.\n\nOur broker handles the clearance for you — you don''t need to deal with border paperwork yourself.'
+),
+(
+  'verification', 'en', 'Verified cars',
+  E'## What the "Verified by the platform" badge means\n\nBefore publishing, our moderator checks the car''s key parameters: VIN, mileage, body and engine condition, trim — and attaches inspection photos/video.\n\nListings with this status carry a green ✅ checkmark and an expandable block with inspection details right on the listing page.'
+),
+(
+  'about', 'en', 'About',
+  E'## About CarBridge\n\nCarBridge is a car marketplace bringing together two markets: cars in stock in Bishkek and cars from China available to order with delivery. We''re not just a listings board — we calculate the full delivery cost for you and match cars to your budget.\n\nAny dealer can set up a company profile and list cars on the platform.'
 )
 on conflict (slug, locale) do update set title = excluded.title, content_md = excluded.content_md, updated_at = now();

@@ -12,13 +12,9 @@ export default function CalculatorPage({
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
       <h1 className="text-2xl font-bold text-neutral-900 sm:text-3xl">{t.calculator.title}</h1>
-      <p className="mt-2 max-w-2xl text-neutral-600">
-        Марка → модель → год → комплектация — и мы посчитаем итоговую стоимость под ключ в
-        Бишкеке: цена в Китае + доставка + оформление + таможня. Ставки логистики и таможенных
-        платежей берутся из актуальной таблицы тарифов и периодически обновляются.
-      </p>
+      <p className="mt-2 max-w-2xl text-neutral-600">{t.calculator.subtitle}</p>
       <div className="mt-6">
-        <CalculatorForm initialBrand={searchParams.brand ?? ""} initialModel={searchParams.model ?? ""} />
+        <CalculatorForm initialBrand={searchParams.brand ?? ""} initialModel={searchParams.model ?? ""} locale="ru" />
       </div>
     </div>
   );

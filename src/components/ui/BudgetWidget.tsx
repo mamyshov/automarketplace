@@ -2,17 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { t } from "@/lib/i18n";
+import { getDictionary, type Locale } from "@/lib/i18n";
 import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 
-export function BudgetWidget({ className = "" }: { className?: string }) {
+export function BudgetWidget({ className = "", locale = "ru" }: { className?: string; locale?: Locale }) {
+  const dict = getDictionary(locale);
   const router = useRouter();
   const [budget, setBudget] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     trackEvent(ANALYTICS_EVENTS.BUDGET_SEARCH, { budget });
-    router.push(`/budget?budget=${encodeURIComponent(budget)}`);
+    const basePath = locale === "ru" ? "/budget" : `/${locale}/budget`;
+    router.push(`${basePath}?budget=${encodeURIComponent(budget)}`);
   }
 
   return (
@@ -24,7 +26,7 @@ export function BudgetWidget({ className = "" }: { className?: string }) {
           required
           value={budget}
           onChange={(e) => setBudget(e.target.value.replace(/[^\d]/g, ""))}
-          placeholder={t.home.budgetPlaceholder}
+          placeholder={dict.home.budgetPlaceholder}
           className="min-h-touch w-full rounded-lg border border-neutral-300 py-2.5 pl-7 pr-3 text-base focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         />
       </div>
@@ -32,7 +34,7 @@ export function BudgetWidget({ className = "" }: { className?: string }) {
         type="submit"
         className="min-h-touch rounded-lg bg-accent-500 px-5 py-2.5 font-semibold text-white transition hover:bg-accent-600"
       >
-        {t.home.budgetSubmit}
+        {dict.home.budgetSubmit}
       </button>
     </form>
   );
