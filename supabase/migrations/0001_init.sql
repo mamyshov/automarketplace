@@ -9,6 +9,23 @@
 create extension if not exists pgcrypto;
 
 -- ---------------------------------------------------------------------------
+-- users — one row per auth.users identity. Created automatically by a
+-- trigger on signup (see handle_new_user below), never inserted by the app.
+-- Created before is_admin() below, which references it — a `language sql`
+-- function has its body's table references resolved at CREATE FUNCTION time,
+-- unlike plpgsql, so the referenced table must already exist.
+-- ---------------------------------------------------------------------------
+create table public.users (
+  id         uuid primary key references auth.users(id) on delete cascade,
+  role       text not null default 'buyer' check (role in ('buyer', 'seller', 'dealer', 'admin')),
+  name       text,
+  phone      text,
+  whatsapp   text,
+  telegram   text,
+  created_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
 -- Helper: is the current request authenticated as an admin?
 -- security definer so it can read public.users regardless of the caller's
 -- own row-level access, without recursing through RLS on public.users.
@@ -24,20 +41,6 @@ as $$
     select 1 from public.users u where u.id = auth.uid() and u.role = 'admin'
   );
 $$;
-
--- ---------------------------------------------------------------------------
--- users — one row per auth.users identity. Created automatically by a
--- trigger on signup (see handle_new_user below), never inserted by the app.
--- ---------------------------------------------------------------------------
-create table public.users (
-  id         uuid primary key references auth.users(id) on delete cascade,
-  role       text not null default 'buyer' check (role in ('buyer', 'seller', 'dealer', 'admin')),
-  name       text,
-  phone      text,
-  whatsapp   text,
-  telegram   text,
-  created_at timestamptz not null default now()
-);
 
 create or replace function public.handle_new_user()
 returns trigger
