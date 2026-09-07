@@ -4,6 +4,7 @@ import { getDealerListings } from "@/lib/data/listings";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { CheckBadgeIcon, WhatsAppIcon } from "@/components/icons";
 import { getDictionary, type Locale } from "@/lib/i18n";
+import { ReviewsSection } from "./ReviewsSection";
 
 export async function DealerPageContent({ slug, locale }: { slug: string; locale: Locale }) {
   const dict = getDictionary(locale);
@@ -69,6 +70,8 @@ export async function DealerPageContent({ slug, locale }: { slug: string; locale
           ))}
         </div>
       )}
+
+      <ReviewsSection dealerId={dealer.id} dealerSlug={dealer.slug} locale={locale} />
     </div>
   );
 }

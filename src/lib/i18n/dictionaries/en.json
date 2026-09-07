@@ -200,5 +200,18 @@
     "companies": "Dealers",
     "about": "About / Contacts",
     "postListing": "Post a listing"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "empty": "No reviews for this company yet.",
+    "leaveReview": "Leave a review",
+    "name": "Your name",
+    "rating": "Rating",
+    "text": "Review",
+    "submit": "Submit review",
+    "sending": "Sending…",
+    "success": "Thank you! Your review has been posted.",
+    "loginRequired": "Log in to leave a review",
+    "loginCta": "Log in"
   }
 }

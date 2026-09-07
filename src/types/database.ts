@@ -152,6 +152,15 @@ export interface CountryRow {
   is_active: boolean;
 }
 
+export interface ReviewRow {
+  id: string;
+  dealer_id: string;
+  author: string;
+  rating: number;
+  text: string | null;
+  created_at: string;
+}
+
 export interface StaticPageRow {
   id: string;
   slug: string;
