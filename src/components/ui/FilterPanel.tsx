@@ -103,6 +103,7 @@ function FilterFields({
 
       <Field label="Марка">
         <input
+          list="catalog-brand-options"
           value={draft.brand}
           onChange={(e) => set("brand", e.target.value)}
           placeholder="Toyota"

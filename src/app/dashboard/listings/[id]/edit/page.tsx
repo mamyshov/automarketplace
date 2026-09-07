@@ -4,16 +4,19 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { ListingForm } from "../../ListingForm";
 import { PhotoUploader } from "../PhotoUploader";
 import { getOwnDealer } from "@/lib/data/dealers";
+import { getBrandsWithModels } from "@/lib/data/brands";
 import type { ListingRow, ListingPhotoRow } from "@/types/database";
 
 export const metadata: Metadata = { title: "Редактирование объявления" };
 
 export default async function EditListingPage({ params }: { params: { id: string } }) {
   const supabase = createServerSupabaseClient();
-  const [{ data }, dealer] = await Promise.all([
+  const [{ data }, dealer, brands] = await Promise.all([
     supabase.from("listings").select("*, listing_photos(*)").eq("id", params.id).maybeSingle(),
     getOwnDealer(),
+    getBrandsWithModels(),
   ]);
+  const brandCatalog = brands.map((b) => ({ name: b.name, models: b.models.map((m) => m.name) }));
 
   if (!data) notFound();
 
@@ -35,6 +38,7 @@ export default async function EditListingPage({ params }: { params: { id: string
           mode="edit"
           listingId={listing.id}
           ownDealer={dealer ? { id: dealer.id, name: dealer.name } : null}
+          brandCatalog={brandCatalog}
           initial={{
             market: listing.market,
             brand: listing.brand,

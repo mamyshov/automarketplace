@@ -19,13 +19,51 @@ export async function moderateListing(id: string, status: ModerationStatus): Pro
   return { ok: true };
 }
 
-export async function setListingVerified(id: string, verified: boolean, note?: string): Promise<{ ok: boolean; error?: string }> {
+export interface SetVerificationInput {
+  verified: boolean;
+  note?: string;
+  byName?: string;
+  /** ids of this listing's own photos to flag as diagnostic evidence in the
+   * expandable "Проверенный автомобиль" block (spec §5.6) — everything else
+   * on the listing is cleared back to false. */
+  verificationPhotoIds?: string[];
+  verificationVideoIds?: string[];
+}
+
+export async function setListingVerified(
+  id: string,
+  input: SetVerificationInput
+): Promise<{ ok: boolean; error?: string }> {
   const supabase = createServerSupabaseClient();
+
   const { error } = await supabase
     .from("listings")
-    .update({ is_verified: verified, verified_at: verified ? new Date().toISOString() : null, verified_note: note ?? null })
+    .update({
+      is_verified: input.verified,
+      verified_at: input.verified ? new Date().toISOString() : null,
+      verified_note: input.note ?? null,
+      verified_by_name: input.byName ?? null,
+    })
     .eq("id", id);
   if (error) return { ok: false, error: error.message };
+
+  const photoIds = new Set(input.verificationPhotoIds ?? []);
+  const videoIds = new Set(input.verificationVideoIds ?? []);
+
+  const [{ data: photos }, { data: videos }] = await Promise.all([
+    supabase.from("listing_photos").select("id, is_verification").eq("listing_id", id),
+    supabase.from("listing_videos").select("id, is_verification").eq("listing_id", id),
+  ]);
+
+  const photoUpdates = (photos ?? [])
+    .filter((p) => p.is_verification !== photoIds.has(p.id))
+    .map((p) => supabase.from("listing_photos").update({ is_verification: photoIds.has(p.id) }).eq("id", p.id));
+  const videoUpdates = (videos ?? [])
+    .filter((v) => v.is_verification !== videoIds.has(v.id))
+    .map((v) => supabase.from("listing_videos").update({ is_verification: videoIds.has(v.id) }).eq("id", v.id));
+
+  await Promise.all([...photoUpdates, ...videoUpdates]);
+
   revalidatePath("/admin/moderation");
   revalidatePath(`/listings/${id}`);
   return { ok: true };

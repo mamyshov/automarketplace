@@ -74,6 +74,7 @@ export interface ListingRow {
   is_verified: boolean;
   verified_at: string | null;
   verified_note: string | null;
+  verified_by_name: string | null;
   description: string | null;
   location: string | null;
   views_count: number;
@@ -86,6 +87,7 @@ export interface ListingPhotoRow {
   listing_id: string;
   url: string;
   position: number;
+  is_verification: boolean;
   created_at: string;
 }
 
@@ -93,6 +95,7 @@ export interface ListingVideoRow {
   id: string;
   listing_id: string;
   url: string;
+  is_verification: boolean;
   created_at: string;
 }
 

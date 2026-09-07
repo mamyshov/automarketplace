@@ -2,22 +2,18 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { moderateListing, setListingVerified } from "@/lib/actions/admin";
+import { moderateListing } from "@/lib/actions/admin";
 import type { ModerationStatus } from "@/types/database";
 
-export function ModerationActions({ listingId, isVerified }: { listingId: string; isVerified: boolean }) {
+export function ModerationActions({ listingId }: { listingId: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  function run(fn: () => Promise<unknown>) {
+  function moderate(status: ModerationStatus) {
     startTransition(async () => {
-      await fn();
+      await moderateListing(listingId, status);
       router.refresh();
     });
-  }
-
-  function moderate(status: ModerationStatus) {
-    run(() => moderateListing(listingId, status));
   }
 
   return (
@@ -35,13 +31,6 @@ export function ModerationActions({ listingId, isVerified }: { listingId: string
         className="min-h-touch rounded-lg bg-danger px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60"
       >
         Отклонить
-      </button>
-      <button
-        disabled={isPending}
-        onClick={() => run(() => setListingVerified(listingId, !isVerified))}
-        className="min-h-touch rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 disabled:opacity-60"
-      >
-        {isVerified ? "Снять проверку" : "✅ Проверено"}
       </button>
     </div>
   );

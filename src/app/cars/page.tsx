@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FilterTrigger, FilterSidebar } from "@/components/ui/FilterPanel";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { getCatalogListings } from "@/lib/data/listings";
+import { getBrandsWithModels } from "@/lib/data/brands";
 import Link from "next/link";
 
 export const metadata: Metadata = { title: "Автомобили" };
@@ -44,7 +45,10 @@ export default async function CarsPage({
     mileageMin: searchParams.mileage_min ?? "",
   };
 
-  const { listings, count } = await getCatalogListings(filters, page);
+  const [{ listings, count }, brands] = await Promise.all([
+    getCatalogListings(filters, page),
+    getBrandsWithModels(),
+  ]);
   const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
 
   function pageHref(p: number) {
@@ -57,6 +61,10 @@ export default async function CarsPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <datalist id="catalog-brand-options">
+        {brands.map((b) => <option key={b.name} value={b.name} />)}
+      </datalist>
+
       <div className="mb-4 flex items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-neutral-900">Автомобили</h1>
         <FilterTrigger />

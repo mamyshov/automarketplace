@@ -3,11 +3,14 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ModerationActions } from "./ModerationActions";
-import type { ListingRow } from "@/types/database";
+import { VerificationEditor } from "./VerificationEditor";
+import type { ListingRow, ListingPhotoRow, ListingVideoRow } from "@/types/database";
 
 export const metadata: Metadata = { title: "Модерация объявлений" };
 
 const MODERATION_LABELS: Record<string, string> = { pending: "На проверке", approved: "Опубликовано", rejected: "Отклонено" };
+
+type Row = ListingRow & { listing_photos: ListingPhotoRow[]; listing_videos: ListingVideoRow[] };
 
 export default async function ModerationPage({
   searchParams,
@@ -17,11 +20,14 @@ export default async function ModerationPage({
   const filter = searchParams.status ?? "pending";
   const supabase = createServerSupabaseClient();
 
-  let query = supabase.from("listings").select("*").order("created_at", { ascending: false });
+  let query = supabase
+    .from("listings")
+    .select("*, listing_photos(*), listing_videos(*)")
+    .order("created_at", { ascending: false });
   if (filter !== "all") query = query.eq("moderation_status", filter);
 
   const { data } = await query;
-  const listings = (data ?? []) as ListingRow[];
+  const listings = (data ?? []) as Row[];
 
   return (
     <div>
@@ -48,7 +54,7 @@ export default async function ModerationPage({
       ) : (
         <div className="flex flex-col gap-3">
           {listings.map((listing) => (
-            <div key={listing.id} className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div key={listing.id} className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <Link href={`/listings/${listing.id}`} className="font-semibold text-neutral-900 hover:text-brand-600">
                   {listing.brand} {listing.model}, {listing.year}
@@ -60,7 +66,17 @@ export default async function ModerationPage({
                   {listing.is_verified && <span className="text-success">✅ Проверено</span>}
                 </div>
               </div>
-              <ModerationActions listingId={listing.id} isVerified={listing.is_verified} />
+              <div className="flex flex-col items-start gap-2 sm:items-end">
+                <ModerationActions listingId={listing.id} />
+                <VerificationEditor
+                  listingId={listing.id}
+                  isVerified={listing.is_verified}
+                  verifiedNote={listing.verified_note}
+                  verifiedByName={listing.verified_by_name}
+                  photos={listing.listing_photos}
+                  videos={listing.listing_videos}
+                />
+              </div>
             </div>
           ))}
         </div>

@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/data/profile";
 const NAV = [
   { href: "/admin", label: "Обзор" },
   { href: "/admin/moderation", label: "Модерация" },
+  { href: "/admin/brands", label: "Марки и модели" },
   { href: "/admin/rates", label: "Ставки калькулятора" },
   { href: "/admin/leads", label: "Заявки" },
   { href: "/admin/subscriptions", label: "Тарифы" },

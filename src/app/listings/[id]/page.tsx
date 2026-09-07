@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getListingById, incrementListingViews } from "@/lib/data/listings";
+import { getListingById, incrementListingViews, type ListingDetail } from "@/lib/data/listings";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { LeadForm } from "@/components/ui/LeadForm";
@@ -107,6 +107,8 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
               ))}
           </dl>
 
+          {listing.is_verified && <VerificationBlock listing={listing} photos={photos} />}
+
           {listing.description && (
             <>
               <h2 className="mt-8 text-lg font-semibold text-neutral-900">Описание</h2>
@@ -157,5 +159,80 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
         </aside>
       </div>
     </div>
+  );
+}
+
+/**
+ * Expandable "Проверенный автомобиль" block (spec §5.6): VIN, mileage,
+ * body/engine condition note, diagnostic photos/video, inspection date and
+ * inspector — only rendered when the listing is admin-verified.
+ */
+function VerificationBlock({
+  listing,
+  photos,
+}: {
+  listing: ListingDetail;
+  photos: ListingDetail["listing_photos"];
+}) {
+  const diagnosticPhotos = photos.filter((p) => p.is_verification);
+  const diagnosticVideos = listing.listing_videos.filter((v) => v.is_verification);
+
+  return (
+    <details className="mt-8 rounded-xl border border-success/30 bg-success/5 p-4 open:pb-5">
+      <summary className="flex cursor-pointer list-none items-center gap-2 font-semibold text-neutral-900">
+        <CheckBadgeIcon width={18} height={18} className="text-success" />
+        {t.listing.verified}
+        <span className="ml-auto text-sm font-normal text-neutral-500">Подробнее</span>
+      </summary>
+
+      <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+        {listing.vin && (
+          <div className="flex justify-between border-b border-neutral-100 py-1.5">
+            <dt className="text-neutral-500">VIN</dt>
+            <dd className="font-medium text-neutral-800">{listing.vin}</dd>
+          </div>
+        )}
+        {listing.mileage !== null && (
+          <div className="flex justify-between border-b border-neutral-100 py-1.5">
+            <dt className="text-neutral-500">Пробег на момент проверки</dt>
+            <dd className="font-medium text-neutral-800">{formatMileage(listing.mileage)}</dd>
+          </div>
+        )}
+        {listing.verified_at && (
+          <div className="flex justify-between border-b border-neutral-100 py-1.5">
+            <dt className="text-neutral-500">Дата проверки</dt>
+            <dd className="font-medium text-neutral-800">{formatDate(listing.verified_at)}</dd>
+          </div>
+        )}
+        {listing.verified_by_name && (
+          <div className="flex justify-between border-b border-neutral-100 py-1.5">
+            <dt className="text-neutral-500">Кто проверял</dt>
+            <dd className="font-medium text-neutral-800">{listing.verified_by_name}</dd>
+          </div>
+        )}
+      </dl>
+
+      {listing.verified_note && (
+        <p className="mt-3 whitespace-pre-line text-sm text-neutral-700">{listing.verified_note}</p>
+      )}
+
+      {diagnosticPhotos.length > 0 && (
+        <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {diagnosticPhotos.map((photo) => (
+            <div key={photo.id} className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
+              <Image src={photo.url} alt="Фото диагностики" fill sizes="150px" className="object-cover" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {diagnosticVideos.length > 0 && (
+        <div className="mt-4 flex flex-col gap-2">
+          {diagnosticVideos.map((video) => (
+            <video key={video.id} src={video.url} controls className="w-full rounded-lg" />
+          ))}
+        </div>
+      )}
+    </details>
   );
 }

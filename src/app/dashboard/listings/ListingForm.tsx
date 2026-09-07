@@ -15,9 +15,13 @@ export interface ListingFormProps {
   listingId?: string;
   initial?: Partial<ListingFormInput>;
   ownDealer?: { id: string; name: string } | null;
+  /** Reference list from /admin/brands, used for <datalist> autosuggestions
+   * on the brand/model inputs — purely a convenience, the fields stay free
+   * text so a car outside the catalog can still be listed. */
+  brandCatalog?: { name: string; models: string[] }[];
 }
 
-export function ListingForm({ mode, listingId, initial, ownDealer }: ListingFormProps) {
+export function ListingForm({ mode, listingId, initial, ownDealer, brandCatalog = [] }: ListingFormProps) {
   const router = useRouter();
   const [values, setValues] = useState<ListingFormInput>({
     market: initial?.market ?? "bishkek",
@@ -87,8 +91,20 @@ export function ListingForm({ mode, listingId, initial, ownDealer }: ListingForm
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Марка"><input required value={values.brand} onChange={(e) => set("brand", e.target.value)} className={inputCls} /></Field>
-        <Field label="Модель"><input required value={values.model} onChange={(e) => set("model", e.target.value)} className={inputCls} /></Field>
+        <Field label="Марка">
+          <input required list="brand-options" value={values.brand} onChange={(e) => set("brand", e.target.value)} className={inputCls} />
+          <datalist id="brand-options">
+            {brandCatalog.map((b) => <option key={b.name} value={b.name} />)}
+          </datalist>
+        </Field>
+        <Field label="Модель">
+          <input required list="model-options" value={values.model} onChange={(e) => set("model", e.target.value)} className={inputCls} />
+          <datalist id="model-options">
+            {(brandCatalog.find((b) => b.name.toLowerCase() === values.brand.trim().toLowerCase())?.models ?? []).map(
+              (m) => <option key={m} value={m} />
+            )}
+          </datalist>
+        </Field>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
