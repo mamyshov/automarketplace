@@ -52,6 +52,17 @@ export default async function BillingPage() {
         ))}
       </div>
 
+      <div className="mt-4 flex flex-col rounded-xl border border-neutral-200 bg-white p-5 sm:max-w-xs">
+        <div className="font-semibold text-neutral-900">Баннерная реклама</div>
+        <div className="mt-1 text-lg font-bold text-brand-600">по договорённости</div>
+        <p className="mt-3 flex-1 text-sm text-neutral-600">
+          Разовый рекламный баннер на главной, в каталоге или в разделе «Китай» — отдельно от тарифов выше.
+        </p>
+        <Link href="/dashboard/ads" className="mt-4 text-sm font-medium text-brand-600 hover:underline">
+          Оставить заявку →
+        </Link>
+      </div>
+
       {subscriptions.length > 0 && (
         <div className="mt-8">
           <h2 className="mb-3 text-lg font-semibold text-neutral-900">История заявок</h2>

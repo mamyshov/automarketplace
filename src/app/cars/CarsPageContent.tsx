@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FilterTrigger, FilterSidebar } from "@/components/ui/FilterPanel";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { AdBanner } from "@/components/ui/AdBanner";
 import { getCatalogListings } from "@/lib/data/listings";
 import { getBrandsWithModels } from "@/lib/data/brands";
 import { getDictionary, type Locale } from "@/lib/i18n";
@@ -91,6 +92,8 @@ export async function CarsPageContent({
         </aside>
 
         <div>
+          <AdBanner placement="catalog_top" className="mb-4" />
+
           <p className="mb-3 text-sm text-neutral-500">{count} {dict.catalogPage.count}</p>
 
           {listings.length === 0 ? (

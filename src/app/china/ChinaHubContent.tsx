@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { AdBanner } from "@/components/ui/AdBanner";
 import { getFeaturedListings } from "@/lib/data/listings";
 import { CalculatorIcon, ChevronRightIcon } from "@/components/icons";
 import { getDictionary, type Locale } from "@/lib/i18n";
@@ -44,6 +45,10 @@ export async function ChinaHubContent({ locale }: { locale: Locale }) {
             <ChevronRightIcon className="shrink-0 text-neutral-400" />
           </Link>
         ))}
+      </div>
+
+      <div className="mt-8">
+        <AdBanner placement="china_top" />
       </div>
 
       {listings.length > 0 && (

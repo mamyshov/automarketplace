@@ -11,6 +11,8 @@ export type LeadStatus = "new" | "contacted" | "closed";
 export type ContactChannel = "whatsapp" | "telegram" | "phone";
 export type Plan = "free" | "pro" | "top" | "dealer";
 export type SubscriptionStatus = "pending" | "active" | "expired" | "rejected";
+export type BannerPlacement = "home_top" | "catalog_top" | "china_top";
+export type BannerStatus = "pending" | "active" | "expired" | "rejected";
 
 export interface UserRow {
   id: string;
@@ -146,6 +148,20 @@ export interface SubscriptionRow {
   started_at: string | null;
   expires_at: string | null;
   created_at: string;
+}
+
+export interface BannerRow {
+  id: string;
+  user_id: string;
+  title: string;
+  link_url: string;
+  image_url: string | null;
+  placement: BannerPlacement;
+  status: BannerStatus;
+  starts_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CountryRow {

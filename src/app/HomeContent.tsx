@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CalculatorWidget } from "@/components/ui/CalculatorWidget";
 import { BudgetWidget } from "@/components/ui/BudgetWidget";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { AdBanner } from "@/components/ui/AdBanner";
 import { getFeaturedListings } from "@/lib/data/listings";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { ChevronRightIcon } from "@/components/icons";
@@ -50,6 +51,10 @@ export async function HomeContent({ locale }: { locale: Locale }) {
           </div>
         </div>
       </section>
+
+      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
+        <AdBanner placement="home_top" />
+      </div>
 
       {/* Budget picker */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">

@@ -1,5 +1,5 @@
 import { env } from "@/lib/env";
-import type { ListingStatus, Market, LeadSource } from "@/types/database";
+import type { ListingStatus, Market, LeadSource, BannerPlacement } from "@/types/database";
 
 export const SITE_NAME = env.siteName;
 export const SITE_DESCRIPTION = env.siteDescription;
@@ -61,6 +61,12 @@ export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
 export const FREE_LISTING_LIMIT = 5;
 export const PRO_LISTING_LIMIT = 30;
 export const MAX_PHOTOS_PER_LISTING = 20;
+
+export const BANNER_PLACEMENT_LABELS: Record<BannerPlacement, string> = {
+  home_top: "Главная страница (вверху)",
+  catalog_top: "Каталог (над списком)",
+  china_top: "Раздел «Китай» (вверху)",
+};
 
 export const BOTTOM_NAV_ITEMS = [
   { href: "/", label: "Главная", icon: "home" },

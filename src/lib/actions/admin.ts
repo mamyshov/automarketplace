@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { calculatorRateFormSchema, type CalculatorRateFormInput } from "@/lib/validation";
-import type { ModerationStatus, LeadStatus, SubscriptionStatus } from "@/types/database";
+import type { ModerationStatus, LeadStatus, SubscriptionStatus, BannerStatus } from "@/types/database";
 
 // All admin write actions ride on the caller's own RLS-scoped session — the
 // `public.is_admin()`-gated policies in the migration are what actually
@@ -136,6 +136,25 @@ export async function updateSubscriptionStatus(id: string, status: SubscriptionS
   revalidatePath("/admin/subscriptions");
   revalidatePath("/dashboard/listings");
   revalidatePath("/cars");
+  return { ok: true };
+}
+
+export async function updateBannerStatus(id: string, status: BannerStatus): Promise<{ ok: boolean; error?: string }> {
+  const supabase = createServerSupabaseClient();
+  const patch: Record<string, unknown> = { status };
+  if (status === "active") {
+    patch.starts_at = new Date().toISOString();
+    patch.expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  }
+
+  const { error } = await supabase.from("banners").update(patch).eq("id", id);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/admin/banners");
+  revalidatePath("/dashboard/ads");
+  revalidatePath("/");
+  revalidatePath("/cars");
+  revalidatePath("/china");
   return { ok: true };
 }
 
