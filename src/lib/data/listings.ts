@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { ListingRow, ListingPhotoRow, ListingVideoRow, DealerRow } from "@/types/database";
@@ -145,7 +146,11 @@ export interface ListingDetail extends ListingRow {
   dealers: Pick<DealerRow, "id" | "name" | "slug" | "verified" | "phone" | "whatsapp" | "telegram"> | null;
 }
 
-export async function getListingById(id: string): Promise<ListingDetail | null> {
+// cache() — both generateMetadata and ListingDetailContent call this for
+// the same id within one page render (a page.tsx/*Content.tsx split that's
+// used across the site); without it that's two full round-trips (with the
+// nested photos/videos/dealer joins) for a single visit to a listing page.
+export const getListingById = cache(async (id: string): Promise<ListingDetail | null> => {
   const supabase = createServerSupabaseClient();
   const { data, error } = await supabase
     .from("listings")
@@ -161,7 +166,7 @@ export async function getListingById(id: string): Promise<ListingDetail | null> 
   }
 
   return data as unknown as ListingDetail;
-}
+});
 
 export async function incrementListingViews(id: string): Promise<void> {
   const supabase = createServerSupabaseClient();

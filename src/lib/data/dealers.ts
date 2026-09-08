@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import { getAuthUser } from "@/lib/data/profile";
@@ -38,7 +39,10 @@ export async function getDealers(): Promise<DealerCardData[]> {
   return (data as DealerRow[]).map((d) => ({ ...d, listingCount: counts.get(d.id) ?? 0 }));
 }
 
-export async function getDealerBySlug(slug: string): Promise<DealerRow | null> {
+// cache() — generateMetadata and DealerPageContent both call this for the
+// same slug within one page render; without it that's two round-trips for
+// one visit to a dealer page.
+export const getDealerBySlug = cache(async (slug: string): Promise<DealerRow | null> => {
   const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase.from("dealers").select("*").eq("slug", slug).maybeSingle();
   if (error || !data) {
@@ -46,7 +50,7 @@ export async function getDealerBySlug(slug: string): Promise<DealerRow | null> {
     return null;
   }
   return data as DealerRow;
-}
+});
 
 export async function getOwnDealer(): Promise<DealerRow | null> {
   const user = await getAuthUser();
