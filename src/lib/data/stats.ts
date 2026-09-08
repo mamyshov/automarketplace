@@ -30,17 +30,19 @@ export async function getSellerStats(
   supabase: ReturnType<typeof createServerSupabaseClient>,
   userId: string
 ): Promise<SellerStats> {
-  const { data: listings } = await supabase
-    .from("listings")
-    .select("id, brand, model, year, status, is_top, views_count")
-    .eq("user_id", userId)
-    .order("views_count", { ascending: false });
+  const [{ data: listings }, { data: leads }] = await Promise.all([
+    supabase
+      .from("listings")
+      .select("id, brand, model, year, status, is_top, views_count")
+      .eq("user_id", userId)
+      .order("views_count", { ascending: false }),
+    supabase.from("leads").select("status, created_at"),
+  ]);
 
   const rows = listings ?? [];
   const activeListings = rows.filter((l) => l.status !== "sold");
   const totalViews = rows.reduce((sum, l) => sum + (l.views_count ?? 0), 0);
 
-  const { data: leads } = await supabase.from("leads").select("status, created_at");
   const leadRows = leads ?? [];
 
   const leadsByStatus = leadRows.reduce(

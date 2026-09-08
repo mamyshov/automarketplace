@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { hasStatsAccess } from "@/lib/data/subscriptions";
 import { getSellerStats } from "@/lib/data/stats";
+import { getAuthUser } from "@/lib/data/profile";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 export const metadata: Metadata = { title: "Статистика" };
@@ -20,9 +21,7 @@ function StatTile({ label, value }: { label: string; value: number | string }) {
 
 export default async function StatsPage() {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
   if (!user) return null;
 
   const hasAccess = await hasStatsAccess(supabase, user.id);

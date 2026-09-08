@@ -16,15 +16,18 @@ export async function getActivePlans(
 ): Promise<Plan[]> {
   const nowIso = new Date().toISOString();
 
-  const { data: personalSubs } = await supabase
-    .from("subscriptions")
-    .select("plan")
-    .eq("user_id", userId)
-    .is("dealer_id", null)
-    .eq("status", "active")
-    .gte("expires_at", nowIso);
-
-  const { data: dealer } = await supabase.from("dealers").select("id").eq("user_id", userId).maybeSingle();
+  // personalSubs and the dealer lookup are independent of each other — run
+  // them together rather than stacking two more sequential round-trips.
+  const [{ data: personalSubs }, { data: dealer }] = await Promise.all([
+    supabase
+      .from("subscriptions")
+      .select("plan")
+      .eq("user_id", userId)
+      .is("dealer_id", null)
+      .eq("status", "active")
+      .gte("expires_at", nowIso),
+    supabase.from("dealers").select("id").eq("user_id", userId).maybeSingle(),
+  ]);
 
   let dealerSubs: { plan: Plan }[] | null = null;
   if (dealer) {

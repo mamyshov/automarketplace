@@ -6,6 +6,7 @@ import { StatusSelect } from "./StatusSelect";
 import { DeleteListingButton } from "./DeleteListingButton";
 import { PromoteTopButton } from "./PromoteTopButton";
 import { getListingLimit } from "@/lib/data/subscriptions";
+import { getAuthUser } from "@/lib/data/profile";
 import type { ListingRow, ListingPhotoRow } from "@/types/database";
 
 export const metadata: Metadata = { title: "Мои объявления" };
@@ -24,19 +25,18 @@ const MODERATION_CLASSES: Record<string, string> = {
 
 export default async function MyListingsPage() {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
 
-  const { data } = await supabase
-    .from("listings")
-    .select("*, listing_photos(url, position)")
-    .eq("user_id", user?.id ?? "")
-    .order("created_at", { ascending: false });
+  const [{ data }, limit] = await Promise.all([
+    supabase
+      .from("listings")
+      .select("*, listing_photos(url, position)")
+      .eq("user_id", user?.id ?? "")
+      .order("created_at", { ascending: false }),
+    user ? getListingLimit(supabase, user.id) : Promise.resolve(null),
+  ]);
 
   const listings = (data ?? []) as (ListingRow & { listing_photos: Pick<ListingPhotoRow, "url" | "position">[] })[];
-
-  const limit = user ? await getListingLimit(supabase, user.id) : null;
 
   const { data: pendingTopSubs } = await supabase
     .from("subscriptions")

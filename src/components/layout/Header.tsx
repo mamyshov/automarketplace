@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/data/profile";
 import { SITE_NAME } from "@/lib/constants";
 import { t } from "@/lib/i18n";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
@@ -14,10 +14,7 @@ const NAV_LINKS = [
 ];
 
 export async function Header() {
-  const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
 
   return (
     <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">

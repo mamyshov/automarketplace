@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { BannerRequestForm } from "./BannerRequestForm";
 import { formatDate } from "@/lib/format";
 import { BANNER_PLACEMENT_LABELS } from "@/lib/constants";
+import { getAuthUser } from "@/lib/data/profile";
 import type { BannerRow } from "@/types/database";
 
 export const metadata: Metadata = { title: "Реклама (баннеры)" };
@@ -23,9 +24,7 @@ const STATUS_CLASSES: Record<string, string> = {
 
 export default async function AdsPage() {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
   if (!user) return null;
 
   const { data } = await supabase
