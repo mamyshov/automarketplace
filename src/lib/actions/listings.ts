@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { listingFormSchema, type ListingFormInput } from "@/lib/validation";
-import { FREE_LISTING_LIMIT, MAX_PHOTOS_PER_LISTING } from "@/lib/constants";
+import { FREE_LISTING_LIMIT, PRO_LISTING_LIMIT, MAX_PHOTOS_PER_LISTING } from "@/lib/constants";
+import { getListingLimit } from "@/lib/data/subscriptions";
 import type { ListingStatus } from "@/types/database";
 
 export interface ListingActionResult {
@@ -41,27 +42,22 @@ export async function createListing(input: ListingFormInput): Promise<ListingAct
   const dealerCheck = await assertOwnDealerOrNull(supabase, user.id, parsed.data.dealer_id);
   if (!dealerCheck.ok) return { ok: false, error: dealerCheck.error };
 
-  // Free plan limit (spec §5.7) — dealers/PRO users are exempt via an active
-  // subscription; MVP keeps this check simple (count of the user's own
-  // non-sold listings vs. FREE_LISTING_LIMIT) rather than a full plan engine.
+  // Plan-based listing cap (spec §5.7): free=5, pro=30, dealer=unlimited.
   const { count } = await supabase
     .from("listings")
     .select("id", { count: "exact", head: true })
     .eq("user_id", user.id)
     .neq("status", "sold");
 
-  const { data: activeSub } = await supabase
-    .from("subscriptions")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .gte("expires_at", new Date().toISOString())
-    .maybeSingle();
+  const limit = await getListingLimit(supabase, user.id);
 
-  if (!activeSub && (count ?? 0) >= FREE_LISTING_LIMIT) {
+  if (limit !== null && (count ?? 0) >= limit) {
     return {
       ok: false,
-      error: `На бесплатном тарифе доступно не более ${FREE_LISTING_LIMIT} активных объявлений. Оформите тариф PRO/Дилер, чтобы разместить больше.`,
+      error:
+        limit === FREE_LISTING_LIMIT
+          ? `На бесплатном тарифе доступно не более ${FREE_LISTING_LIMIT} активных объявлений. Оформите тариф PRO/Дилер, чтобы разместить больше.`
+          : `На тарифе PRO доступно не более ${PRO_LISTING_LIMIT} активных объявлений. Оформите тариф Дилер, чтобы снять ограничение.`,
     };
   }
 

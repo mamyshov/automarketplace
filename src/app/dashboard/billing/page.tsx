@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { RequestPlanButton } from "./RequestPlanButton";
 import { formatDate } from "@/lib/format";
@@ -36,7 +37,17 @@ export default async function BillingPage() {
             <ul className="mt-3 flex-1 space-y-1 text-sm text-neutral-600">
               {p.features.map((f) => <li key={f}>• {f}</li>)}
             </ul>
-            {p.plan !== "free" && <div className="mt-4"><RequestPlanButton plan={p.plan} /></div>}
+            {p.plan === "top" ? (
+              <Link href="/dashboard/listings" className="mt-4 text-sm font-medium text-brand-600 hover:underline">
+                Выбрать объявление для продвижения →
+              </Link>
+            ) : (
+              p.plan !== "free" && (
+                <div className="mt-4">
+                  <RequestPlanButton plan={p.plan} />
+                </div>
+              )
+            )}
           </div>
         ))}
       </div>

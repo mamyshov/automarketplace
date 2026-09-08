@@ -6,7 +6,18 @@ import type { ListingRow, ListingPhotoRow } from "@/types/database";
 
 type CardRow = Pick<
   ListingRow,
-  "id" | "market" | "brand" | "model" | "year" | "mileage" | "price_origin" | "price_final" | "status" | "is_verified" | "location"
+  | "id"
+  | "market"
+  | "brand"
+  | "model"
+  | "year"
+  | "mileage"
+  | "price_origin"
+  | "price_final"
+  | "status"
+  | "is_verified"
+  | "is_top"
+  | "location"
 > & { listing_photos: Pick<ListingPhotoRow, "url" | "position">[] };
 
 export async function getListingsByIds(ids: string[]): Promise<ListingCardData[]> {
@@ -16,7 +27,7 @@ export async function getListingsByIds(ids: string[]): Promise<ListingCardData[]
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, market, brand, model, year, mileage, price_origin, price_final, status, is_verified, location, listing_photos(url, position)"
+      "id, market, brand, model, year, mileage, price_origin, price_final, status, is_verified, is_top, location, listing_photos(url, position)"
     )
     .in("id", ids);
 

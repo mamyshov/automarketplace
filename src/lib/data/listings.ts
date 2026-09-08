@@ -4,11 +4,11 @@ import type { ListingCardData } from "@/components/ui/ListingCard";
 import type { CatalogFilters } from "@/components/ui/FilterPanel";
 
 const CARD_SELECT =
-  "id, market, brand, model, year, mileage, price_origin, price_final, status, is_verified, location, listing_photos(url, position)";
+  "id, market, brand, model, year, mileage, price_origin, price_final, status, is_verified, is_top, location, listing_photos(url, position)";
 
 type CardRow = Pick<
   ListingRow,
-  "id" | "market" | "brand" | "model" | "year" | "mileage" | "price_origin" | "price_final" | "status" | "is_verified" | "location"
+  "id" | "market" | "brand" | "model" | "year" | "mileage" | "price_origin" | "price_final" | "status" | "is_verified" | "is_top" | "location"
 > & { listing_photos: Pick<ListingPhotoRow, "url" | "position">[] };
 
 function toCard(row: CardRow): ListingCardData {
@@ -24,6 +24,7 @@ export async function getFeaturedListings(market: "bishkek" | "china", limit = 4
     .eq("market", market)
     .eq("moderation_status", "approved")
     .neq("status", "sold")
+    .order("is_top", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -89,7 +90,9 @@ export async function getCatalogListings(
 
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
-  query = query.order("created_at", { ascending: false }).range(from, to);
+  // TOP listings (spec §5.7 — paid one-off promotion) sort first, spec's
+  // "поднятие в поиске".
+  query = query.order("is_top", { ascending: false }).order("created_at", { ascending: false }).range(from, to);
 
   const { data, error, count } = await query;
   if (error) {

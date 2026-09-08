@@ -109,9 +109,33 @@ export async function updateSubscriptionStatus(id: string, status: SubscriptionS
     patch.started_at = new Date().toISOString();
     patch.expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
   }
+
+  const { data: sub, error: fetchError } = await supabase
+    .from("subscriptions")
+    .select("plan, listing_id")
+    .eq("id", id)
+    .single();
+  if (fetchError) return { ok: false, error: fetchError.message };
+
   const { error } = await supabase.from("subscriptions").update(patch).eq("id", id);
   if (error) return { ok: false, error: error.message };
+
+  // Activating a 'top' request (spec §5.7) is what actually promotes the
+  // listing — flip its is_top flag now. NB: there's no expiry sweep yet, so
+  // a listing stays "TOP" past its subscription's expires_at until an admin
+  // manually clears it (known MVP gap, same as other plans' lack of a
+  // cron-based expiry job).
+  if (status === "active" && sub.plan === "top" && sub.listing_id) {
+    const { error: listingError } = await supabase
+      .from("listings")
+      .update({ is_top: true })
+      .eq("id", sub.listing_id);
+    if (listingError) return { ok: false, error: listingError.message };
+  }
+
   revalidatePath("/admin/subscriptions");
+  revalidatePath("/dashboard/listings");
+  revalidatePath("/cars");
   return { ok: true };
 }
 

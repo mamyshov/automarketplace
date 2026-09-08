@@ -4,7 +4,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { StatusSelect } from "./StatusSelect";
 import { DeleteListingButton } from "./DeleteListingButton";
-import { FREE_LISTING_LIMIT } from "@/lib/constants";
+import { PromoteTopButton } from "./PromoteTopButton";
+import { getListingLimit } from "@/lib/data/subscriptions";
 import type { ListingRow, ListingPhotoRow } from "@/types/database";
 
 export const metadata: Metadata = { title: "Мои объявления" };
@@ -35,6 +36,16 @@ export default async function MyListingsPage() {
 
   const listings = (data ?? []) as (ListingRow & { listing_photos: Pick<ListingPhotoRow, "url" | "position">[] })[];
 
+  const limit = user ? await getListingLimit(supabase, user.id) : null;
+
+  const { data: pendingTopSubs } = await supabase
+    .from("subscriptions")
+    .select("listing_id")
+    .eq("plan", "top")
+    .eq("status", "pending")
+    .in("listing_id", listings.map((l) => l.id).length ? listings.map((l) => l.id) : ["00000000-0000-0000-0000-000000000000"]);
+  const pendingTopListingIds = new Set((pendingTopSubs ?? []).map((s) => s.listing_id));
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -48,7 +59,9 @@ export default async function MyListingsPage() {
       </div>
 
       <p className="mb-4 text-sm text-neutral-500">
-        {listings.filter((l) => l.status !== "sold").length}/{FREE_LISTING_LIMIT} активных объявлений на бесплатном тарифе
+        {listings.filter((l) => l.status !== "sold").length}
+        {limit === null ? "" : `/${limit}`} активных объявлений
+        {limit === null && " · тариф Дилер — без ограничений"}
       </p>
 
       {listings.length === 0 ? (
@@ -83,7 +96,12 @@ export default async function MyListingsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <PromoteTopButton
+                    listingId={listing.id}
+                    isTop={listing.is_top}
+                    isPendingRequest={pendingTopListingIds.has(listing.id)}
+                  />
                   <StatusSelect listingId={listing.id} initialStatus={listing.status} />
                   <Link
                     href={`/dashboard/listings/${listing.id}/edit`}

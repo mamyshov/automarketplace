@@ -75,6 +75,7 @@ export interface ListingRow {
   verified_at: string | null;
   verified_note: string | null;
   verified_by_name: string | null;
+  is_top: boolean;
   description: string | null;
   location: string | null;
   views_count: number;
@@ -136,6 +137,9 @@ export interface SubscriptionRow {
   id: string;
   user_id: string | null;
   dealer_id: string | null;
+  /** Only meaningful for plan = 'top' — which listing this one-off
+   * promotion request is for. Null for 'pro'/'dealer' (account-wide). */
+  listing_id: string | null;
   plan: Plan;
   status: SubscriptionStatus;
   payment_note: string | null;

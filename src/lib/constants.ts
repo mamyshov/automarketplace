@@ -59,6 +59,7 @@ export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
 };
 
 export const FREE_LISTING_LIMIT = 5;
+export const PRO_LISTING_LIMIT = 30;
 export const MAX_PHOTOS_PER_LISTING = 20;
 
 export const BOTTOM_NAV_ITEMS = [

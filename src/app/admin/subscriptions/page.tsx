@@ -10,8 +10,13 @@ const STATUS_LABELS: Record<string, string> = { pending: "На рассмотр�
 
 export default async function AdminSubscriptionsPage() {
   const supabase = createServerSupabaseClient();
-  const { data } = await supabase.from("subscriptions").select("*").order("created_at", { ascending: false });
-  const subscriptions = (data ?? []) as SubscriptionRow[];
+  const { data } = await supabase
+    .from("subscriptions")
+    .select("*, listings(id, brand, model, year)")
+    .order("created_at", { ascending: false });
+  const subscriptions = (data ?? []) as (SubscriptionRow & {
+    listings: { id: string; brand: string; model: string; year: number } | null;
+  })[];
 
   return (
     <div>
@@ -26,6 +31,15 @@ export default async function AdminSubscriptionsPage() {
             <div className="text-sm">
               <span className="font-semibold uppercase text-neutral-900">{s.plan}</span>{" "}
               <span className="text-neutral-500">· {STATUS_LABELS[s.status]} · {formatDate(s.created_at)}</span>
+              {s.listings && (
+                <span className="text-neutral-500">
+                  {" "}
+                  · объявление:{" "}
+                  <a href={`/listings/${s.listings.id}`} className="text-brand-600 underline" target="_blank">
+                    {s.listings.brand} {s.listings.model}, {s.listings.year}
+                  </a>
+                </span>
+              )}
             </div>
             {s.status === "pending" && <SubscriptionActions id={s.id} />}
           </div>
