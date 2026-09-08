@@ -25,6 +25,11 @@ export async function getFeaturedListings(market: "bishkek" | "china", limit = 4
     .eq("market", market)
     .eq("moderation_status", "approved")
     .neq("status", "sold")
+    // A card only ever shows one photo — ask Postgres for just the cover
+    // photo per listing instead of every photo (a listing can have up to
+    // MAX_PHOTOS_PER_LISTING) and discarding the rest client-side in toCard().
+    .order("position", { foreignTable: "listing_photos", ascending: true })
+    .limit(1, { foreignTable: "listing_photos" })
     .order("is_top", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -44,6 +49,8 @@ export async function getDealerListings(dealerId: string, limit = 60): Promise<L
     .eq("dealer_id", dealerId)
     .eq("moderation_status", "approved")
     .neq("status", "sold")
+    .order("position", { foreignTable: "listing_photos", ascending: true })
+    .limit(1, { foreignTable: "listing_photos" })
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -91,6 +98,11 @@ export async function getCatalogListings(
 
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+  // Only the cover photo per listing is needed for a card (see
+  // getFeaturedListings) — matters most here: a full page is 20 listings,
+  // each with up to MAX_PHOTOS_PER_LISTING photos otherwise fetched and
+  // discarded.
+  query = query.order("position", { foreignTable: "listing_photos", ascending: true }).limit(1, { foreignTable: "listing_photos" });
   // TOP listings (spec §5.7 — paid one-off promotion) sort first, spec's
   // "поднятие в поиске".
   query = query.order("is_top", { ascending: false }).order("created_at", { ascending: false }).range(from, to);
@@ -112,6 +124,8 @@ export async function getBudgetMatches(budget: number, limit = 12): Promise<List
     .eq("moderation_status", "approved")
     .neq("status", "sold")
     .lte("price_final", budget * 1.15)
+    .order("position", { foreignTable: "listing_photos", ascending: true })
+    .limit(1, { foreignTable: "listing_photos" })
     .order("price_final", { ascending: false })
     .limit(limit);
 

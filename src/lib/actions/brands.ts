@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 // Same trust model as lib/actions/admin.ts: these ride the caller's own
@@ -32,6 +32,7 @@ export async function createBrand(name: string): Promise<BrandsActionResult> {
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/admin/brands");
+  revalidateTag("brands");
   return { ok: true };
 }
 
@@ -40,6 +41,7 @@ export async function deleteBrand(id: string): Promise<BrandsActionResult> {
   const { error } = await supabase.from("brands").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/admin/brands");
+  revalidateTag("brands");
   return { ok: true };
 }
 
@@ -54,6 +56,7 @@ export async function createModel(brandId: string, name: string): Promise<Brands
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/admin/brands");
+  revalidateTag("brands");
   return { ok: true };
 }
 
@@ -62,5 +65,6 @@ export async function deleteModel(id: string): Promise<BrandsActionResult> {
   const { error } = await supabase.from("models").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/admin/brands");
+  revalidateTag("brands");
   return { ok: true };
 }

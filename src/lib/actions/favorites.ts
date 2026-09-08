@@ -29,7 +29,9 @@ export async function getListingsByIds(ids: string[]): Promise<ListingCardData[]
     .select(
       "id, market, brand, model, year, mileage, price_origin, price_final, status, is_verified, is_top, location, listing_photos(url, position)"
     )
-    .in("id", ids);
+    .in("id", ids)
+    .order("position", { foreignTable: "listing_photos", ascending: true })
+    .limit(1, { foreignTable: "listing_photos" });
 
   if (error || !data) return [];
 
