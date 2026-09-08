@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { ListingRow, ListingPhotoRow, ListingVideoRow, DealerRow } from "@/types/database";
 import type { ListingCardData } from "@/components/ui/ListingCard";
 import type { CatalogFilters } from "@/components/ui/FilterPanel";
@@ -17,7 +18,7 @@ function toCard(row: CardRow): ListingCardData {
 }
 
 export async function getFeaturedListings(market: "bishkek" | "china", limit = 4): Promise<ListingCardData[]> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase
     .from("listings")
     .select(CARD_SELECT)
@@ -36,7 +37,7 @@ export async function getFeaturedListings(market: "bishkek" | "china", limit = 4
 }
 
 export async function getDealerListings(dealerId: string, limit = 60): Promise<ListingCardData[]> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase
     .from("listings")
     .select(CARD_SELECT)
@@ -64,7 +65,7 @@ export async function getCatalogListings(
   filters: Partial<CatalogFilters> & { mileageMax?: string; mileageMin?: string },
   page = 1
 ): Promise<CatalogPage> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   let query = supabase
     .from("listings")
     .select(CARD_SELECT, { count: "exact" })
@@ -103,7 +104,7 @@ export async function getCatalogListings(
 }
 
 export async function getBudgetMatches(budget: number, limit = 12): Promise<ListingCardData[]> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase
     .from("listings")
     .select(CARD_SELECT)

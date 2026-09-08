@@ -1,9 +1,10 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { StaticPageRow } from "@/types/database";
 import { DEFAULT_LOCALE } from "@/lib/i18n";
 
 export async function getStaticPage(slug: string, locale: string = DEFAULT_LOCALE): Promise<StaticPageRow | null> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase
     .from("static_pages")
     .select("*")

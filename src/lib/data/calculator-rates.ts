@@ -1,8 +1,8 @@
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { CalculatorRateRow } from "@/types/database";
 
 export async function getActiveCalculatorRates(): Promise<CalculatorRateRow[]> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase
     .from("calculator_rates")
     .select("*")

@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { BannerRow, BannerPlacement } from "@/types/database";
 
 /**
@@ -10,7 +10,7 @@ import type { BannerRow, BannerPlacement } from "@/types/database";
  * permissive rather than hiding a banner over a data gap).
  */
 export async function getActiveBanner(placement: BannerPlacement): Promise<BannerRow | null> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const nowIso = new Date().toISOString();
 
   const { data, error } = await supabase

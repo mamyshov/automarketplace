@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import { getAuthUser } from "@/lib/data/profile";
 import type { DealerRow } from "@/types/database";
 
@@ -7,7 +8,7 @@ export interface DealerCardData extends DealerRow {
 }
 
 export async function getDealers(): Promise<DealerCardData[]> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
 
   // One query per dealer for its listing count used to fire N simultaneous
   // requests — fine for a handful of dealers, not for a real catalog. A
@@ -38,7 +39,7 @@ export async function getDealers(): Promise<DealerCardData[]> {
 }
 
 export async function getDealerBySlug(slug: string): Promise<DealerRow | null> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase.from("dealers").select("*").eq("slug", slug).maybeSingle();
   if (error || !data) {
     if (error) console.error("getDealerBySlug failed", error);

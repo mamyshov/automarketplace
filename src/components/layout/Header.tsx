@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { getAuthUser } from "@/lib/data/profile";
 import { SITE_NAME } from "@/lib/constants";
 import { t } from "@/lib/i18n";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
+import { HeaderAuthButton } from "@/components/layout/HeaderAuthButton";
 
 const NAV_LINKS = [
   { href: "/cars", label: t.nav.catalog },
@@ -13,9 +13,11 @@ const NAV_LINKS = [
   { href: "/about", label: t.nav.about },
 ];
 
-export async function Header() {
-  const user = await getAuthUser();
-
+// Deliberately a plain (non-async) component with no server-side auth check
+// — see HeaderAuthButton for why. This renders on every page via the root
+// layout, so keeping it free of cookies()/data fetching is what lets public
+// pages actually be cached (ISR) instead of hitting Supabase on every request.
+export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
@@ -39,21 +41,7 @@ export async function Header() {
 
         <div className="flex items-center gap-3">
           <LocaleSwitcher />
-          {user ? (
-            <Link
-              href="/dashboard"
-              className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
-            >
-              {t.nav.dashboard}
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="rounded-full border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-800 hover:border-brand-600 hover:text-brand-600"
-            >
-              {t.nav.login}
-            </Link>
-          )}
+          <HeaderAuthButton />
         </div>
       </div>
     </header>

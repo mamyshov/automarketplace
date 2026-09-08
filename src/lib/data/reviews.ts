@@ -1,8 +1,9 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { ReviewRow } from "@/types/database";
 
 export async function getDealerReviews(dealerId: string): Promise<ReviewRow[]> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase
     .from("reviews")
     .select("*")

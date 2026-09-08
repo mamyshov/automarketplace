@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { BrandRow, ModelRow } from "@/types/database";
 
 export interface BrandWithModels extends BrandRow {
@@ -6,7 +6,7 @@ export interface BrandWithModels extends BrandRow {
 }
 
 export async function getBrandsWithModels(): Promise<BrandWithModels[]> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase
     .from("brands")
     .select("*, models(*)")
