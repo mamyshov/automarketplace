@@ -37,3 +37,17 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Top progress bar shown by loading.tsx while a dynamic route's data is
+   still being fetched — without it, clicking a link to a page that isn't
+   cached (search results, a listing, the dashboard) just does nothing
+   visible until the whole page pops in, which reads as "the button didn't
+   react". */
+@keyframes loading-bar-sweep {
+  0% {
+    left: -33%;
+  }
+  100% {
+    left: 100%;
+  }
+}
